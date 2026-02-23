@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ファイル収集アプリ</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+        
+        .section h2 {
+            margin-top: 0;
+            color: #555;
+        }
+        
+        button {
+            background-color: #007AFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background-color: #005FCC;
+        }
+        
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        input, select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 5px;
+        }
+        
+        .folder-path {
+            font-family: monospace;
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            word-break: break-all;
+        }
+        
+        .file-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            background-color: white;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .file-item:last-child {
+            border-bottom: none;
+        }
+        
+        .file-info {
+            flex: 1;
+            margin-left: 10px;
+        }
+        
+        .file-name {
+            font-weight: bold;
+        }
+        
+        .file-path {
+            font-size: 12px;
+            color: #666;
+            font-family: monospace;
+        }
+        
+        .file-meta {
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .progress {
+            margin-top: 10px;
+        }
+        
+        .progress-container {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            display: none;
+        }
+        
+        .progress-container.active {
+            display: block;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #007AFF, #0056CC);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .progress-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: #495057;
+        }
+        
+        .current-file {
+            font-family: monospace;
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+            word-break: break-all;
+        }
+        
+        .progress-stats {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .exclude-folders {
+            margin-top: 10px;
+        }
+        
+        .exclude-folders textarea {
+            width: 100%;
+            min-height: 60px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            resize: vertical;
+        }
+        
+        .date-filter {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        
+        .date-filter-toggle {
+            margin-bottom: 10px;
+        }
+        
+        .date-inputs {
+            display: none;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .date-inputs.active {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        
+        .date-inputs input[type="datetime-local"] {
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📁 ファイル収集アプリ</h1>
+        
+        <div class="section">
+            <h2>1. 監視フォルダを選択</h2>
+            <div class="controls">
+                <button id="selectSourceFolder">フォルダを選択</button>
+                <label>更新時間: </label>
+                <select id="timeRange">
+                    <option value="1">過去1時間</option>
+                    <option value="6">過去6時間</option>
+                    <option value="24" selected>過去24時間</option>
+                    <option value="168">過去1週間</option>
+                </select>
+                <button id="scanFiles" disabled>ファイルをスキャン</button>
+            </div>
+            <div id="sourcePath" class="folder-path" style="display: none;"></div>
+            <div class="exclude-folders">
+                <label for="excludeFolders">除外フォルダ（1行に1つ、*でワイルドカード可能）:</label>
+                <textarea id="excludeFolders" placeholder="例:&#10;node_modules&#10;.git&#10;build&#10;dist&#10;*cache*"></textarea>
+            </div>
+            <div class="date-filter">
+                <div class="date-filter-toggle">
+                    <input type="checkbox" id="useCustomDate">
+                    <label for="useCustomDate">カスタム日時を指定する</label>
+                </div>
+                <div class="date-inputs" id="dateInputs">
+                    <label for="customDate">指定日時以降:</label>
+                    <input type="datetime-local" id="customDate">
+                    <button type="button" id="setNow">現在時刻を設定</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>2. 更新されたファイル一覧</h2>
+            <div id="fileCount" style="margin-bottom: 10px; color: #666;"></div>
+            <div id="fileList" class="file-list"></div>
+        </div>
+        
+        <div class="section">
+            <h2>3. 収集先フォルダを選択</h2>
+            <div class="controls">
+                <button id="selectDestFolder">収集先フォルダを選択</button>
+                <button id="collectFiles" disabled>選択したファイルを収集</button>
+            </div>
+            <div id="destPath" class="folder-path" style="display: none;"></div>
+            <div class="controls" style="margin-top: 10px;">
+                <input type="checkbox" id="preserveStructure">
+                <label for="preserveStructure">フォルダ階層を保持する（元のフォルダ構造を維持してコピー）</label>
+            </div>
+        </div>
+        
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-details">
+                <span id="progressText">ファイルを収集中...</span>
+                <div class="progress-stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="completedCount">0</div>
+                        <div class="stat-label">完了</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalCount">0</div>
+                        <div class="stat-label">総数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="errorCount">0</div>
+                        <div class="stat-label">エラー</div>
+                    </div>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%;">0%</div>
+            </div>
+            <div class="current-file" id="currentFile">準備中...</div>
+        </div>
+        
+        <div id="status"></div>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>

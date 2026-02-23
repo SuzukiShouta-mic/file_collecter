@@ -1,0 +1,16 @@
+{
+  "name": "file-collector",
+  "version": "1.0.0",
+  "description": "ファイル収集アプリ",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev"
+  },
+  "keywords": ["electron", "file", "collector"],
+  "author": "File Collector",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.0.0"
+  }
+}
